@@ -8,11 +8,14 @@ import android.content.pm.PackageManager
 import android.content.res.Resources
 import android.support.v4.app.ActivityCompat
 import com.an.deviceinfo.device.model.Device
+import com.dp.screenparamlogger.entry.PackedData
 import com.dp.screenparamlogger.entry.ScreenData
 import com.dp.screenparamlogger.exception.PermissionDeniedException
 import com.jraska.falcon.Falcon
 import io.reactivex.Observable
 import io.reactivex.schedulers.Schedulers
+import org.zeroturnaround.zip.FileSource
+import org.zeroturnaround.zip.ZipUtil
 import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException
@@ -37,7 +40,7 @@ class ScreenParamLogger {
         val instance: ScreenParamLogger by lazy { Holder.INSTANCE }
     }
 
-    fun logActivity(activity: Activity, file: File = provideScreenshotFile(activity, provideFileName(activity.localClassName))): Observable<ScreenData> {
+    fun logActivity(activity: Activity, file: File = provideScreenshotFile(activity, provideFileName(activity.localClassName))): Observable<PackedData> {
         if (instance.deviceInfo == null) {
             instance.deviceInfo = Device(activity)
         }
@@ -51,6 +54,21 @@ class ScreenParamLogger {
                     Observable.just(createdFile)
                 }
                 .flatMap { Observable.just(ScreenData(Date(), it.name, it, provideDeviceInfoFile(activity, it.nameWithoutExtension))) }
+                .flatMap { Observable.just(packToZip(activity, it)) }
+    }
+
+    private fun packToZip(context: Context, screenData: ScreenData): PackedData {
+        val archiveFileDir = File(context.externalCacheDir, "app_screens_device_data_into_zip")
+        if (!archiveFileDir.exists()) {
+            archiveFileDir.mkdir()
+        }
+        val zipFile = File(archiveFileDir, "${screenData.screenShotFile.nameWithoutExtension}.zip")
+        zipFile.createNewFile()
+        ZipUtil.pack(arrayOf(
+                FileSource(screenData.screenShotFile.name, screenData.screenShotFile),
+                FileSource(screenData.deviceInfoTextFile.name, screenData.deviceInfoTextFile)
+        ), zipFile)
+        return PackedData(screenData, zipFile)
     }
 
     private fun provideDeviceInfoFile(context: Context, name: String): File {

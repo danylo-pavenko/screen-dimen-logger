@@ -17,6 +17,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     fun onWriteScreenLog(v: View) {
+        ScreenParamLogger.appVersion = BuildConfig.VERSION_NAME
         PermissionManager.getInstance(this)
                 .checkPermissions(Collections.singleton(Manifest.permission.WRITE_EXTERNAL_STORAGE), object : PermissionManager.PermissionRequestListener {
                     override fun onPermissionGranted() {
