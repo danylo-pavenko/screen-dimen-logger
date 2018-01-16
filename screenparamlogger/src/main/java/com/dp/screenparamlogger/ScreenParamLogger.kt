@@ -47,6 +47,7 @@ class ScreenParamLogger {
             return Observable.error(HasScreenException(tag))
         }
         if (PermissionProvider.checkStoragePermission(activity)) {
+            if (file.exists()) file.delete()
             return Observable.error(PermissionDeniedException())
         }
         return Observable.just(file)
