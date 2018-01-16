@@ -37,8 +37,8 @@ class ScreenParamLogger {
     }
 
     fun logScreen(activity: Activity, userId: String = ScreenParamLogger.userId,
-                  tag: String = "${activity.localClassName}_${userId}_",
-                  file: File = provideScreenshotFile(activity, provideFileName(tag)),
+                  tag: String = activity.localClassName,
+                  file: File = provideScreenshotFile(activity, provideFileName("${tag}_${userId}_")),
                   checkOnceLogging: Boolean = true): Observable<PackedData> {
         initScreenStorage(activity)
         initDeviceInfo(activity)
