@@ -42,18 +42,17 @@ class ScreenParamLogger {
         val instance: ScreenParamLogger by lazy { Holder.INSTANCE }
     }
 
-    fun logScreen(activity: Activity, userId: String = "", tag: String = "${activity.localClassName}_${userId}_", file: File = provideScreenshotFile(activity, provideFileName(tag)), checkOnceLogging: Boolean = true): Observable<PackedData> {
-        if (screensStorage == null) {
-            screensStorage = DataStorage(activity)
-        }
+    fun logScreen(activity: Activity, userId: String = "",
+                  tag: String = "${activity.localClassName}_${userId}_",
+                  file: File = provideScreenshotFile(activity, provideFileName(tag)),
+                  checkOnceLogging: Boolean = true): Observable<PackedData> {
+        initScreenStorage(activity)
+        initDeviceInfo(activity)
         if (screensStorage != null && screensStorage!!.hasThisScreen(tag) && checkOnceLogging) {
             if (file.exists()) file.delete()
             return Observable.error(HasScreenException(tag))
         }
-        if (instance.deviceInfo == null) {
-            instance.deviceInfo = Device(activity)
-        }
-        if (ActivityCompat.checkSelfPermission(activity, Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_DENIED) {
+        if (checkStoragePermission(activity)) {
             return Observable.error(PermissionDeniedException())
         }
         return Observable.just(file)
@@ -65,6 +64,16 @@ class ScreenParamLogger {
                 .flatMap { Observable.just(ScreenData(Date(), it.name, it, provideDeviceInfoFile(activity, it.nameWithoutExtension))) }
                 .flatMap { Observable.just(packToZip(activity, it)) }
                 .doOnNext { if (screensStorage != null) screensStorage?.saveLoggedScreen(tag) }
+    }
+
+    private fun checkStoragePermission(activity: Activity): Boolean = ActivityCompat.checkSelfPermission(activity, Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_DENIED
+
+    private fun initDeviceInfo(activity: Activity) {
+        if (instance.deviceInfo == null) instance.deviceInfo = Device(activity)
+    }
+
+    private fun initScreenStorage(activity: Activity) {
+        if (screensStorage == null) screensStorage = DataStorage(activity)
     }
 
     private fun packToZip(context: Context, screenData: ScreenData): PackedData {
