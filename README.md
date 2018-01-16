@@ -16,7 +16,7 @@ jCenter is the default Maven repository used by Android Studio.
 Add dependency to your project. For `build.gradle` file
 
 ```
-implementation 'com.github.Daniil-Pavenko:screen-dimen-logger:1.0.0'
+implementation 'com.github.Daniil-Pavenko:screen-dimen-logger:1.0.1'
 ```
 
 And add to root `build.gradle`
