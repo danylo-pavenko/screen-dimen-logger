@@ -9,7 +9,7 @@
 The dependency is available via [jitpack](a).
 jCenter is the default Maven repository used by Android Studio.
 
-[![](https://jitpack.io/v/Daniil-Pavenko/CellAdapter.svg)](https://jitpack.io/#Daniil-Pavenko/CellAdapter)
+[![](https://jitpack.io/v/Daniil-Pavenko/screen-dimen-logger.svg)](https://jitpack.io/#Daniil-Pavenko/screen-dimen-logger)
 
 ## Quick start
 
