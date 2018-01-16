@@ -10,7 +10,9 @@ import android.support.v4.app.ActivityCompat
 import com.an.deviceinfo.device.model.Device
 import com.dp.screenparamlogger.entry.PackedData
 import com.dp.screenparamlogger.entry.ScreenData
+import com.dp.screenparamlogger.exception.HasScreenException
 import com.dp.screenparamlogger.exception.PermissionDeniedException
+import com.dp.screenparamlogger.storage.DataStorage
 import com.jraska.falcon.Falcon
 import io.reactivex.Observable
 import io.reactivex.schedulers.Schedulers
@@ -22,10 +24,10 @@ import java.io.IOException
 import java.text.SimpleDateFormat
 import java.util.*
 
-
 class ScreenParamLogger {
 
     private var deviceInfo: Device? = null
+    private var screensStorage: DataStorage? = null
 
     private val fileDateFormat = SimpleDateFormat("dd-MM-yyyy_HH-mm-ss", Locale.US)
 
@@ -35,12 +37,19 @@ class ScreenParamLogger {
     }
 
     companion object {
-        var appVersion: String = "Not inited into Application"
+        var appVersion: String = "No init into Application"
 
         val instance: ScreenParamLogger by lazy { Holder.INSTANCE }
     }
 
-    fun logActivity(activity: Activity, file: File = provideScreenshotFile(activity, provideFileName(activity.localClassName))): Observable<PackedData> {
+    fun logScreen(activity: Activity, userId: String = "", tag: String = "${activity.localClassName}_${userId}_", file: File = provideScreenshotFile(activity, provideFileName(tag)), checkOnceLogging: Boolean = true): Observable<PackedData> {
+        if (screensStorage == null) {
+            screensStorage = DataStorage(activity)
+        }
+        if (screensStorage != null && screensStorage!!.hasThisScreen(tag) && checkOnceLogging) {
+            if (file.exists()) file.delete()
+            return Observable.error(HasScreenException(tag))
+        }
         if (instance.deviceInfo == null) {
             instance.deviceInfo = Device(activity)
         }
@@ -55,6 +64,7 @@ class ScreenParamLogger {
                 }
                 .flatMap { Observable.just(ScreenData(Date(), it.name, it, provideDeviceInfoFile(activity, it.nameWithoutExtension))) }
                 .flatMap { Observable.just(packToZip(activity, it)) }
+                .doOnNext { if (screensStorage != null) screensStorage?.saveLoggedScreen(tag) }
     }
 
     private fun packToZip(context: Context, screenData: ScreenData): PackedData {
@@ -92,13 +102,14 @@ class ScreenParamLogger {
 
     private fun prepareDeviceInfoBytes(resources: Resources): ByteArray {
         return ("Manufactorer: ${deviceInfo?.manufacturer}\n" +
-                "Model: ${deviceInfo?.model}" +
+                "Model: ${deviceInfo?.model}\n" +
                 "Hardware: ${deviceInfo?.hardware}\n" +
                 "BuildBrand: ${deviceInfo?.buildBrand}\n" +
                 "ScreenDensity: ${deviceInfo?.screenDensity} or ${resources.displayMetrics.density}\n" +
                 "ScreenWidth: ${deviceInfo?.screenWidth}\n" +
                 "ScreenHeight: ${deviceInfo?.screenHeight}\n" +
-                "OsVersion: ${deviceInfo?.osVersion}\n" +
+                "AndroidOsVersion: ${deviceInfo?.osVersion}\n" +
+                "Locale: ${deviceInfo?.language}\n" +
                 "AppVersion: $appVersion")
                 .toByteArray()
     }
