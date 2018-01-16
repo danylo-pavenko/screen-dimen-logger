@@ -31,11 +31,12 @@ class ScreenParamLogger {
 
     companion object {
         var appVersion: String = "No init into Application"
+        var userId: String = ""
 
         val instance: ScreenParamLogger by lazy { Holder.INSTANCE }
     }
 
-    fun logScreen(activity: Activity, userId: String = "",
+    fun logScreen(activity: Activity, userId: String = ScreenParamLogger.userId,
                   tag: String = "${activity.localClassName}_${userId}_",
                   file: File = provideScreenshotFile(activity, provideFileName(tag)),
                   checkOnceLogging: Boolean = true): Observable<PackedData> {
