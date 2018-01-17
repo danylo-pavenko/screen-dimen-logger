@@ -6,6 +6,7 @@ import com.dp.screenparamlogger.entry.PackedData
 import com.dp.screenparamlogger.entry.ScreenData
 import com.dp.screenparamlogger.exception.HasScreenException
 import com.dp.screenparamlogger.exception.PermissionDeniedException
+import com.dp.screenparamlogger.exception.WorkWithDebuxDisabledException
 import com.dp.screenparamlogger.storage.DataStorage
 import com.dp.screenparamlogger.util.DeviceInfoProvider
 import com.dp.screenparamlogger.util.FileUtil.packToZip
@@ -32,14 +33,19 @@ class ScreenParamLogger {
     companion object {
         var appVersion: String = "No init into Application"
         var userId: String = ""
+        var workWithDebug = true
 
         val instance: ScreenParamLogger by lazy { Holder.INSTANCE }
     }
 
     fun logScreen(activity: Activity, userId: String = ScreenParamLogger.userId,
                   tag: String = activity.localClassName,
-                  file: File = provideScreenshotFile(activity, provideFileName("${tag}_${userId}_")),
+                  file: File = provideScreenshotFile(activity, provideFileName("_${tag}_$userId")),
                   checkOnceLogging: Boolean = true): Observable<PackedData> {
+        if (!workWithDebug && BuildConfig.BUILD_TYPE.contains("debug", true)) {
+            if (file.exists()) file.delete()
+            return Observable.error(WorkWithDebuxDisabledException())
+        }
         initScreenStorage(activity)
         initDeviceInfo(activity)
         if (screensStorage != null && screensStorage!!.hasThisScreen(tag) && checkOnceLogging) {
