@@ -44,7 +44,7 @@ class ScreenParamLogger {
                   tag: String = activity.localClassName,
                   file: File = provideScreenshotFile(activity, provideFileName("_${tag}_$userId")),
                   checkOnceLogging: Boolean = true): Observable<PackedData> {
-        if (!workWithDebug) {
+        if (!workWithDebug && BuildConfig.DEBUG) {
             if (file.exists()) file.delete()
             printLog(WorkWithDebugDisabledException())
             return Observable.empty()
