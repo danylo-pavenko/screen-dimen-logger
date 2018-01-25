@@ -1,6 +1,8 @@
 package com.dp.screenparamlogger.util
 
 import android.content.Context
+import com.dp.screenparamlogger.SPLConstants
+import com.dp.screenparamlogger.ScreenParamLogger
 import com.dp.screenparamlogger.entry.PackedData
 import com.dp.screenparamlogger.entry.ScreenData
 import org.zeroturnaround.zip.FileSource
@@ -16,7 +18,7 @@ object FileUtil {
     private val fileDateFormat = SimpleDateFormat("dd-MM-yyyy_HH-mm-ss", Locale.US)
 
     fun provideDeviceInfoFile(context: Context, name: String, deviceInfoBytes: ByteArray): File {
-        val textFileDir = File(context.externalCacheDir, "app_screens_device_data")
+        val textFileDir = File(obtainStorage(context, ScreenParamLogger.storage), "app_screens_device_data")
         if (!textFileDir.exists()) {
             textFileDir.mkdir()
         }
@@ -29,13 +31,12 @@ object FileUtil {
                 fileOutputStream.close()
             } catch (e: IOException) {
             }
-
         }
         return infoFile
     }
 
     fun provideScreenshotFile(context: Context, screenShotFileName: String): File {
-        val screenShotDir = File(context.externalCacheDir, "app_screens")
+        val screenShotDir = File(obtainStorage(context, ScreenParamLogger.storage), "app_screens")
         if (!screenShotDir.exists()) {
             screenShotDir.mkdir()
         }
@@ -44,10 +45,16 @@ object FileUtil {
         return screenShotFile
     }
 
+    private fun obtainStorage(context: Context, storage: Int): File = if (storage == SPLConstants.INTERNAL_STORAGE) {
+        context.cacheDir
+    } else {
+        context.externalCacheDir
+    }
+
     fun provideFileName(screenName: String): String = "screenshot_${screenName}_${fileDateFormat.format(Date())}.jpg"
 
     fun packToZip(context: Context, screenData: ScreenData): PackedData {
-        val archiveFileDir = File(context.externalCacheDir, "app_screens_device_data_into_zip")
+        val archiveFileDir = File(obtainStorage(context, ScreenParamLogger.storage), "app_screens_device_data_into_zip")
         if (!archiveFileDir.exists()) {
             archiveFileDir.mkdir()
         }

@@ -36,6 +36,7 @@ class ScreenParamLogger {
         var userId: String = ""
         var workWithDebug = true
         var outputLogEnable = true
+        var storage = SPLConstants.INTERNAL_STORAGE
 
         val instance: ScreenParamLogger by lazy { Holder.INSTANCE }
     }
