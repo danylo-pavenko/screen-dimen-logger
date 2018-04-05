@@ -41,7 +41,8 @@ fun logScreen(activity: Activity, userId: String = ScreenParamLogger.userId,
                   tag: String = activity.localClassName,
                   file: File = provideScreenshotFile(activity, provideFileName("_${tag}_$userId")),
                   checkOnceLogging: Boolean = true,
-                  dateTimeFormat: SimpleDateFormat = SimpleDateFormat("HH:mm:ss dd/MM/yyyy", Locale.getDefault())): Observable<PackedData>
+                  dateTimeFormat: SimpleDateFormat = SimpleDateFormat("HH:mm:ss dd/MM/yyyy", Locale.getDefault()),
+                  infoMapData: HashMap<String, String> = hashMapOf()): Observable<PackedData> 
 ```
 
 So:

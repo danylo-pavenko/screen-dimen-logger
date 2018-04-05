@@ -37,6 +37,7 @@ class ScreenParamLogger {
         var userId: String = ""
         var workWithDebug = true
         var outputLogEnable = true
+        var enableDuplicationScreens = false
         var storage = SPLConstants.INTERNAL_STORAGE
 
         val instance: ScreenParamLogger by lazy { Holder.INSTANCE }
@@ -46,7 +47,8 @@ class ScreenParamLogger {
                   tag: String = activity.localClassName,
                   file: File = provideScreenshotFile(activity, provideFileName("_${tag}_$userId")),
                   checkOnceLogging: Boolean = true,
-                  dateTimeFormat: SimpleDateFormat = SimpleDateFormat("HH:mm:ss dd/MM/yyyy", Locale.getDefault())): Observable<PackedData> {
+                  dateTimeFormat: SimpleDateFormat = SimpleDateFormat("HH:mm:ss dd/MM/yyyy", Locale.getDefault()),
+                  infoMapData: HashMap<String, String> = hashMapOf()): Observable<PackedData> {
         if (!workWithDebug && BuildConfig.DEBUG) {
             if (file.exists()) file.delete()
             printLog(WorkWithDebugDisabledException())
@@ -54,7 +56,7 @@ class ScreenParamLogger {
         }
         initScreenStorage(activity)
         initDeviceInfo(activity)
-        if (screensStorage != null && screensStorage!!.hasThisScreen(tag) && checkOnceLogging) {
+        if (screensStorage != null && screensStorage!!.hasThisScreen(tag) && !enableDuplicationScreens && checkOnceLogging) {
             if (file.exists()) file.delete()
             printLog(HasScreenException(tag))
             return Observable.empty()
@@ -74,7 +76,7 @@ class ScreenParamLogger {
                     Observable.just(ScreenData(Date(), it.name, it, provideDeviceInfoFile(
                             activity,
                             it.nameWithoutExtension,
-                            deviceInfoProvider!!.prepareDeviceInfoBytes(tag, dateTimeFormat.format(Date())))))
+                            deviceInfoProvider!!.prepareDeviceInfoBytes(tag, dateTimeFormat.format(Date()), infoMapData))))
                 }
                 .flatMap { Observable.just(packToZip(activity, it)) }
                 .doOnNext { if (screensStorage != null) screensStorage?.saveLoggedScreen(tag) }

@@ -19,11 +19,13 @@ class MainActivity : AppCompatActivity() {
 
     fun onWriteScreenLog(v: View) {
         ScreenParamLogger.appVersion = BuildConfig.VERSION_NAME
+        ScreenParamLogger.enableDuplicationScreens = true
         ScreenParamLogger.storage = SPLConstants.EXTERNAL_STORAGE
         PermissionManager.getInstance(this)
                 .checkPermissions(Collections.singleton(Manifest.permission.WRITE_EXTERNAL_STORAGE), object : PermissionManager.PermissionRequestListener {
                     override fun onPermissionGranted() {
-                        ScreenParamLogger.instance.logScreen(this@MainActivity)
+                        ScreenParamLogger.instance.logScreen(this@MainActivity,
+                                infoMapData = hashMapOf(Pair("hash_permission", "yes"), Pair("test_activity", "1234567890")))
                                 .subscribe({ Log.i(javaClass.simpleName, "Logged SUCCESS for ${it.screenData.name}") }, { Log.e(javaClass.simpleName, "Logged FAIL") })
                     }
 

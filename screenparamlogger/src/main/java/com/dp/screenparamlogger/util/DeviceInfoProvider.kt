@@ -8,8 +8,8 @@ class DeviceInfoProvider(private val context: Context) {
 
     private var deviceInfo = Device(context)
 
-    fun prepareDeviceInfoBytes(tag: String, time: String): ByteArray {
-        return ("Tag Screen: $tag\n" +
+    fun prepareDeviceInfoBytes(tag: String, time: String, mapData: HashMap<String, String>): ByteArray {
+        var info = ("Tag Screen: $tag\n" +
                 "Time: $time\n" +
                 "Manufacturer: ${deviceInfo.manufacturer}\n" +
                 "Model: ${deviceInfo.model}\n" +
@@ -21,6 +21,7 @@ class DeviceInfoProvider(private val context: Context) {
                 "AndroidOsVersion: ${deviceInfo.osVersion}\n" +
                 "Locale: ${deviceInfo.language}\n" +
                 "AppVersion: ${ScreenParamLogger.appVersion}")
-                .toByteArray()
+        mapData.forEach { key, value -> info += "\n$key: $value" }
+        return info.toByteArray()
     }
 }
