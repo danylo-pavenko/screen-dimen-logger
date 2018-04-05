@@ -37,10 +37,11 @@ ScreenParamLogger.instance.logScreen(<And here, can just put activity and tag>)
 ```
 
 ```
-fun logScreen(activity: Activity, userId: String = "",
-                  tag: String = "${activity.localClassName}_${userId}_",
-                  file: File = provideScreenshotFile(activity, provideFileName(tag)),
-                  checkOnceLogging: Boolean = true): Observable<PackedData>
+fun logScreen(activity: Activity, userId: String = ScreenParamLogger.userId,
+                  tag: String = activity.localClassName,
+                  file: File = provideScreenshotFile(activity, provideFileName("_${tag}_$userId")),
+                  checkOnceLogging: Boolean = true,
+                  dateTimeFormat: SimpleDateFormat = SimpleDateFormat("HH:mm:ss dd/MM/yyyy", Locale.getDefault())): Observable<PackedData>
 ```
 
 So:
