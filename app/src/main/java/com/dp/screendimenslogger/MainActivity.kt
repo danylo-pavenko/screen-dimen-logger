@@ -5,6 +5,7 @@ import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
 import android.util.Log
 import android.view.View
+import com.dp.screenparamlogger.SPLConstants
 import com.dp.screenparamlogger.ScreenParamLogger
 import com.intentfilter.androidpermissions.PermissionManager
 import java.util.*
@@ -18,6 +19,7 @@ class MainActivity : AppCompatActivity() {
 
     fun onWriteScreenLog(v: View) {
         ScreenParamLogger.appVersion = BuildConfig.VERSION_NAME
+        ScreenParamLogger.storage = SPLConstants.EXTERNAL_STORAGE
         PermissionManager.getInstance(this)
                 .checkPermissions(Collections.singleton(Manifest.permission.WRITE_EXTERNAL_STORAGE), object : PermissionManager.PermissionRequestListener {
                     override fun onPermissionGranted() {

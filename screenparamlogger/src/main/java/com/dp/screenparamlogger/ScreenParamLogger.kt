@@ -19,6 +19,7 @@ import com.jraska.falcon.Falcon
 import io.reactivex.Observable
 import io.reactivex.schedulers.Schedulers
 import java.io.File
+import java.text.SimpleDateFormat
 import java.util.*
 
 class ScreenParamLogger {
@@ -44,7 +45,8 @@ class ScreenParamLogger {
     fun logScreen(activity: Activity, userId: String = ScreenParamLogger.userId,
                   tag: String = activity.localClassName,
                   file: File = provideScreenshotFile(activity, provideFileName("_${tag}_$userId")),
-                  checkOnceLogging: Boolean = true): Observable<PackedData> {
+                  checkOnceLogging: Boolean = true,
+                  dateTimeFormat: SimpleDateFormat = SimpleDateFormat("HH:mm:ss dd/MM/yyyy", Locale.getDefault())): Observable<PackedData> {
         if (!workWithDebug && BuildConfig.DEBUG) {
             if (file.exists()) file.delete()
             printLog(WorkWithDebugDisabledException())
@@ -72,7 +74,7 @@ class ScreenParamLogger {
                     Observable.just(ScreenData(Date(), it.name, it, provideDeviceInfoFile(
                             activity,
                             it.nameWithoutExtension,
-                            deviceInfoProvider!!.prepareDeviceInfoBytes())))
+                            deviceInfoProvider!!.prepareDeviceInfoBytes(tag, dateTimeFormat.format(Date())))))
                 }
                 .flatMap { Observable.just(packToZip(activity, it)) }
                 .doOnNext { if (screensStorage != null) screensStorage?.saveLoggedScreen(tag) }

@@ -8,8 +8,10 @@ class DeviceInfoProvider(private val context: Context) {
 
     private var deviceInfo = Device(context)
 
-    fun prepareDeviceInfoBytes(): ByteArray {
-        return ("Manufacturer: ${deviceInfo.manufacturer}\n" +
+    fun prepareDeviceInfoBytes(tag: String, time: String): ByteArray {
+        return ("Tag Screen: $tag\n" +
+                "Time: $time\n" +
+                "Manufacturer: ${deviceInfo.manufacturer}\n" +
                 "Model: ${deviceInfo.model}\n" +
                 "Hardware: ${deviceInfo.hardware}\n" +
                 "BuildBrand: ${deviceInfo.buildBrand}\n" +
