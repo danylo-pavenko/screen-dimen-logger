@@ -21,7 +21,9 @@ class DeviceInfoProvider(private val context: Context) {
                 "AndroidOsVersion: ${deviceInfo.osVersion}\n" +
                 "Locale: ${deviceInfo.language}\n" +
                 "AppVersion: ${ScreenParamLogger.appVersion}")
-        mapData.forEach { key, value -> info += "\n$key: $value" }
+        for ((key, value) in mapData) {
+            info += "\n$key: $value"
+        }
         return info.toByteArray()
     }
 }
