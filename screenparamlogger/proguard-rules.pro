@@ -20,4 +20,7 @@
 # hide the original source file name.
 #-renamesourcefileattribute SourceFile
 -keepclassmembers class com.dp.screenparamlogger.ScreenParamLogger { *; }
--keep class com.dp.screenparamlogger.exception.* { *; }
+-keep class com.dp.screenparamlogger.exception.** { *; }
+-keep class com.dp.screenparamlogger.entry.** { *; }
+
+-keep class com.an.deviceinfo.device.model.** { *; }

@@ -1,6 +1,7 @@
 package com.dp.screenparamlogger.util
 
 import android.content.Context
+import android.util.Log
 import com.an.deviceinfo.device.model.Device
 import com.dp.screenparamlogger.ScreenParamLogger
 
@@ -21,8 +22,12 @@ class DeviceInfoProvider(private val context: Context) {
                 "AndroidOsVersion: ${deviceInfo.osVersion}\n" +
                 "Locale: ${deviceInfo.language}\n" +
                 "AppVersion: ${ScreenParamLogger.appVersion}")
-        for ((key, value) in mapData) {
-            info += "\n$key: $value"
+        try {
+            for ((key, value) in mapData) {
+                info += "\n$key: $value"
+            }
+        } catch (e: Exception) {
+            Log.e(javaClass.simpleName, "Your device make a crash")
         }
         return info.toByteArray()
     }
